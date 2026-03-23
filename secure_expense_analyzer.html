@@ -1,0 +1,2844 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap");
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #0d0f14;
+        --bg2: #141720;
+        --bg3: #1c2030;
+        --bg4: #242840;
+        --accent: #6c63ff;
+        --accent2: #ff6584;
+        --accent3: #43d9ad;
+        --accent4: #ffd166;
+        --text: #e8eaf0;
+        --text2: #9aa0b8;
+        --text3: #5a6080;
+        --border: #2a2f4a;
+        --border2: #3a3f5a;
+        --card: #181c28;
+        --card2: #1e2335;
+        --font: "Syne", sans-serif;
+        --mono: "DM Mono", monospace;
+        --r: 10px;
+        --r2: 16px;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 14px;
+        min-height: 100vh;
+      }
+      #app {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      /* NAV */
+      .nav {
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        gap: 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .nav-logo {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--accent);
+        padding: 14px 0;
+        margin-right: 24px;
+        letter-spacing: -0.5px;
+      }
+      .nav-logo span {
+        color: var(--accent3);
+      }
+      .nav-tabs {
+        display: flex;
+        gap: 2px;
+        flex: 1;
+      }
+      .nav-tab {
+        padding: 14px 14px;
+        font-size: 13px;
+        color: var(--text2);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .nav-tab:hover {
+        color: var(--text);
+      }
+      .nav-tab.active {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-badge {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 5px 12px;
+        font-size: 12px;
+        color: var(--text2);
+        font-family: var(--mono);
+      }
+
+      /* MAIN */
+      .main {
+        flex: 1;
+        padding: 20px;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      /* PAGE TRANSITIONS */
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+      }
+
+      /* CARDS */
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--r2);
+        padding: 20px;
+      }
+      .card-sm {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 16px;
+      }
+      .card2 {
+        background: var(--card2);
+        border: 1px solid var(--border);
+        border-radius: var(--r2);
+        padding: 20px;
+      }
+
+      /* GRID */
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .grid3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+      }
+      .grid4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+
+      /* METRIC CARDS */
+      .metric {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 14px 16px;
+      }
+      .metric-label {
+        font-size: 11px;
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+        font-family: var(--mono);
+      }
+      .metric-val {
+        font-size: 22px;
+        font-weight: 700;
+        font-family: var(--mono);
+      }
+      .metric-sub {
+        font-size: 11px;
+        color: var(--text3);
+        margin-top: 4px;
+      }
+      .metric-up {
+        color: #43d9ad;
+      }
+      .metric-down {
+        color: #ff6584;
+      }
+      .metric-neutral {
+        color: var(--accent);
+      }
+
+      /* SECTION */
+      .section-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 14px;
+        font-family: var(--mono);
+      }
+      .page-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .page-sub {
+        color: var(--text2);
+        font-size: 13px;
+        margin-bottom: 20px;
+      }
+
+      /* TABLE */
+      .tbl {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      .tbl th {
+        color: var(--text3);
+        font-weight: 500;
+        text-align: left;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+        font-family: var(--mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .tbl td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border2);
+        vertical-align: middle;
+      }
+      .tbl tr:last-child td {
+        border-bottom: none;
+      }
+      .tbl tr:hover td {
+        background: var(--bg3);
+      }
+
+      /* BADGES */
+      .badge {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-family: var(--mono);
+      }
+      .badge-food {
+        background: #1a2d3a;
+        color: #43d9ad;
+        border: 1px solid #1e4a3a;
+      }
+      .badge-transport {
+        background: #2d1a3a;
+        color: #c06ff7;
+        border: 1px solid #3a1e4a;
+      }
+      .badge-utilities {
+        background: #2d2a1a;
+        color: #ffd166;
+        border: 1px solid #4a3e1e;
+      }
+      .badge-entertainment {
+        background: #2d1a1a;
+        color: #ff6584;
+        border: 1px solid #4a1e1e;
+      }
+      .badge-health {
+        background: #1a2d1a;
+        color: #7dd87d;
+        border: 1px solid #1e4a1e;
+      }
+      .badge-shopping {
+        background: #1a1a3a;
+        color: #6c63ff;
+        border: 1px solid #1e1e4a;
+      }
+      .badge-other {
+        background: #2a2a2a;
+        color: #9aa0b8;
+        border: 1px solid #3a3a3a;
+      }
+
+      /* BUTTONS */
+      .btn {
+        padding: 9px 18px;
+        border-radius: var(--r);
+        border: 1px solid var(--border2);
+        background: var(--bg3);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn:hover {
+        background: var(--bg4);
+        border-color: var(--accent);
+      }
+      .btn-primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #5952e0;
+        border-color: #5952e0;
+      }
+      .btn-danger {
+        background: #3a1e1e;
+        border-color: #6b2f2f;
+        color: #ff8080;
+      }
+      .btn-danger:hover {
+        background: #4a2424;
+      }
+      .btn-sm {
+        padding: 5px 12px;
+        font-size: 12px;
+      }
+
+      /* FORM */
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .form-group label {
+        font-size: 11px;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-family: var(--mono);
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 9px 12px;
+        border-radius: var(--r);
+        font-family: var(--font);
+        font-size: 13px;
+        transition: border-color 0.2s;
+        outline: none;
+      }
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        border-color: var(--accent);
+      }
+      .form-group select option {
+        background: var(--bg2);
+      }
+
+      /* CHARTS */
+      .chart-wrap {
+        position: relative;
+        width: 100%;
+      }
+
+      /* ANOMALY */
+      .anomaly-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border2);
+      }
+      .anomaly-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+      .anomaly-high {
+        background: #3a1a1a;
+        border: 1px solid #6b2f2f;
+      }
+      .anomaly-low {
+        background: #1a3a1a;
+        border: 1px solid #2f6b2f;
+      }
+      .anomaly-warn {
+        background: #3a2a1a;
+        border: 1px solid #6b4f2f;
+      }
+
+      /* CHATBOT */
+      .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 480px;
+      }
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .chat-msg {
+        max-width: 75%;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .chat-msg-user {
+        align-self: flex-end;
+        background: var(--accent);
+        color: #fff;
+        border-radius: 12px 12px 3px 12px;
+      }
+      .chat-msg-bot {
+        align-self: flex-start;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 12px 12px 12px 3px;
+      }
+      .chat-msg-bot strong {
+        color: var(--accent3);
+      }
+      .chat-input-row {
+        display: flex;
+        gap: 8px;
+        padding: 16px;
+        border-top: 1px solid var(--border);
+      }
+      .chat-input {
+        flex: 1;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 10px 14px;
+        border-radius: var(--r);
+        font-family: var(--font);
+        font-size: 13px;
+        outline: none;
+      }
+      .chat-input:focus {
+        border-color: var(--accent);
+      }
+      .chat-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 0 16px 12px;
+      }
+      .chat-suggestion {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        color: var(--text2);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .chat-suggestion:hover {
+        border-color: var(--accent);
+        color: var(--text);
+      }
+      .typing {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        padding: 4px 0;
+      }
+      .typing span {
+        width: 6px;
+        height: 6px;
+        background: var(--text3);
+        border-radius: 50%;
+        animation: blink 1.2s ease-in-out infinite;
+      }
+      .typing span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes blink {
+        0%,
+        80%,
+        100% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        40% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* FORECAST */
+      .forecast-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .forecast-bar-label {
+        font-size: 12px;
+        color: var(--text2);
+        width: 30px;
+        font-family: var(--mono);
+      }
+      .forecast-bar-track {
+        flex: 1;
+        background: var(--bg3);
+        border-radius: 4px;
+        height: 8px;
+        overflow: hidden;
+      }
+      .forecast-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.6s ease;
+      }
+      .forecast-bar-val {
+        font-size: 12px;
+        font-family: var(--mono);
+        width: 80px;
+        text-align: right;
+      }
+
+      /* IMPORT */
+      .drop-zone {
+        border: 2px dashed var(--border2);
+        border-radius: var(--r2);
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .drop-zone:hover {
+        border-color: var(--accent);
+        background: var(--bg3);
+      }
+      .drop-zone-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+      }
+
+      /* TAGS */
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 3px 10px;
+        font-size: 11px;
+        color: var(--text2);
+        margin: 2px;
+      }
+
+      /* ALERT */
+      .alert {
+        padding: 10px 14px;
+        border-radius: var(--r);
+        margin-bottom: 12px;
+        font-size: 13px;
+      }
+      .alert-success {
+        background: #1a3a2a;
+        border: 1px solid #2f6b4a;
+        color: #7dd8b5;
+      }
+      .alert-danger {
+        background: #3a1a1a;
+        border: 1px solid #6b2f2f;
+        color: #ff9090;
+      }
+      .alert-info {
+        background: #1a2a3a;
+        border: 1px solid #2f4a6b;
+        color: #90c0ff;
+      }
+
+      /* PROGRESS */
+      .progress-track {
+        background: var(--bg3);
+        border-radius: 4px;
+        height: 6px;
+        overflow: hidden;
+        margin-top: 6px;
+      }
+      .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+      }
+
+      /* SCROLLBAR */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg2);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 3px;
+      }
+
+      /* DIVIDER */
+      .divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 16px 0;
+      }
+
+      /* BUDGET BAR */
+      .budget-item {
+        margin-bottom: 14px;
+      }
+      .budget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+      .budget-cat {
+        font-size: 13px;
+      }
+      .budget-nums {
+        font-size: 11px;
+        color: var(--text2);
+        font-family: var(--mono);
+      }
+
+      /* FLEX UTILS */
+      .flex {
+        display: flex;
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .gap-8 {
+        gap: 8px;
+      }
+      .gap-12 {
+        gap: 12px;
+      }
+      .gap-16 {
+        gap: 16px;
+      }
+      .gap-20 {
+        gap: 20px;
+      }
+      .mb-8 {
+        margin-bottom: 8px;
+      }
+      .mb-12 {
+        margin-bottom: 12px;
+      }
+      .mb-16 {
+        margin-bottom: 16px;
+      }
+      .mb-20 {
+        margin-bottom: 20px;
+      }
+      .mt-12 {
+        margin-top: 12px;
+      }
+      .mt-16 {
+        margin-top: 16px;
+      }
+      .text-sm {
+        font-size: 12px;
+      }
+      .text-muted {
+        color: var(--text2);
+      }
+      .text-mono {
+        font-family: var(--mono);
+      }
+      .w-full {
+        width: 100%;
+      }
+
+      /* AWS STEPS */
+      .step-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 16px;
+        margin-bottom: 12px;
+        border-left: 3px solid var(--accent);
+      }
+      .step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background: var(--accent);
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 700;
+        margin-right: 8px;
+        color: #fff;
+        flex-shrink: 0;
+      }
+      .code-block {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 14px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: #a8d8a0;
+        line-height: 1.6;
+        overflow-x: auto;
+        margin: 8px 0;
+      }
+      .arch-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 12px;
+        margin: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- STEP 2A: LOGIN SCREEN — paste BEFORE <div id='app'>        -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div
+      id="login-screen"
+      style="
+        position: fixed;
+        inset: 0;
+        background: #0d0f14;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 14px;
+      "
+    >
+      <!-- App logo -->
+      <div
+        style="
+          font-size: 32px;
+          font-weight: 700;
+          color: #6c63ff;
+          font-family: Syne, sans-serif;
+          margin-bottom: 8px;
+        "
+      >
+        Fin<span style="color: #43d9ad">Lens</span>
+      </div>
+      <div style="font-size: 13px; color: #9aa0b8; margin-bottom: 4px">
+        Sign in to your account
+      </div>
+      <!-- Error message area -->
+      <div
+        id="login-error"
+        style="
+          color: #ff6584;
+          font-size: 13px;
+          min-height: 20px;
+          text-align: center;
+          max-width: 300px;
+        "
+      ></div>
+
+      <!-- Email input -->
+      <input
+        id="login-email"
+        type="email"
+        placeholder="Email address"
+        style="
+          padding: 11px 16px;
+          border-radius: 8px;
+          border: 1px solid #2a2f4a;
+          background: #141720;
+          color: #e8eaf0;
+          width: 300px;
+          font-size: 14px;
+          outline: none;
+        "
+        onkeydown="if (event.key == Enter) doLogin();"
+      />
+
+      <!-- Password input -->
+      <input
+        id="login-pass"
+        type="password"
+        placeholder="Password"
+        style="
+          padding: 11px 16px;
+          border-radius: 8px;
+          border: 1px solid #2a2f4a;
+          background: #141720;
+          color: #e8eaf0;
+          width: 300px;
+          font-size: 14px;
+          outline: none;
+        "
+        onkeydown="if (event.key == Enter) doLogin();"
+      />
+
+      <!-- Sign In button -->
+      <button
+        onclick="doLogin()"
+        style="
+          padding: 11px 0;
+          background: #6c63ff;
+          color: #ffffff;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          width: 300px;
+          font-family: Syne, sans-serif;
+        "
+      >
+        Sign In
+      </button>
+
+      <!-- Divider -->
+      <div style="color: #5a6080; font-size: 12px">— or —</div>
+
+      <!-- Create Account button -->
+      <button
+        onclick="doSignup()"
+        style="
+          padding: 11px 0;
+          background: transparent;
+          color: #9aa0b8;
+          border: 1px solid #2a2f4a;
+          border-radius: 8px;
+          font-size: 14px;
+          cursor: pointer;
+          width: 300px;
+          font-family: Syne, sans-serif;
+        "
+      >
+        Create Account
+      </button>
+
+      <div style="font-size: 11px; color: #5a6080; margin-top: 4px">
+        Secured by AWS Cognito
+      </div>
+    </div>
+    <!-- END LOGIN SCREEN -->
+
+    <div id="app">
+      <!-- NAV -->
+      <nav class="nav">
+        <div class="nav-logo">Fin<span>Lens</span></div>
+        <div class="nav-tabs" id="nav-tabs">
+          <div class="nav-tab active" data-page="dashboard">Dashboard</div>
+          <div class="nav-tab" data-page="expenses">Expenses</div>
+          <div class="nav-tab" data-page="analytics">Analytics</div>
+          <div class="nav-tab" data-page="forecast">Forecast & ML</div>
+          <div class="nav-tab" data-page="assistant">AI Assistant</div>
+          <div class="nav-tab" data-page="budget">Budgets</div>
+          <!-- <div class="nav-tab" data-page="aws">Cloud Setup</div> -->
+        </div>
+        <div class="nav-right">
+          <div class="nav-badge" id="total-badge">Loading...</div>
+        </div>
+      </nav>
+
+      <div class="main">
+        <!-- ===================== DASHBOARD ===================== -->
+        <div class="page active" id="page-dashboard">
+          <div class="flex items-center justify-between mb-20">
+            <div>
+              <div class="page-title">Overview</div>
+              <div class="page-sub">
+                March 2025 · Personal Finance Dashboard
+              </div>
+            </div>
+            <button
+              class="btn btn-primary btn-sm"
+              onclick="showPage('expenses')"
+            >
+              + Add Expense
+            </button>
+          </div>
+
+          <div class="grid4 mb-16" id="metrics-grid"></div>
+
+          <div class="grid2 mb-16">
+            <div class="card">
+              <div class="section-title">Monthly Spending</div>
+              <div class="chart-wrap" style="height: 220px">
+                <canvas id="monthly-chart"></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <div class="section-title">By Category</div>
+              <div class="chart-wrap" style="height: 220px">
+                <canvas id="cat-chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="card">
+              <div class="section-title mb-12">Recent Transactions</div>
+              <table class="tbl" id="recent-tbl"></table>
+            </div>
+            <div class="card">
+              <div class="section-title mb-12">Anomaly Alerts</div>
+              <div id="anomaly-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== EXPENSES ===================== -->
+        <div class="page" id="page-expenses">
+          <div class="page-title">Expense Manager</div>
+          <div class="page-sub">Add manually or import from file</div>
+
+          <div class="grid2 mb-16">
+            <div class="card">
+              <div class="section-title">Add Expense Manually</div>
+              <div id="add-form-alert"></div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Date</label><input type="date" id="f-date" />
+                </div>
+                <div class="form-group">
+                  <label>Amount (₹)</label
+                  ><input type="number" id="f-amount" placeholder="0.00" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Category</label>
+                  <select id="f-cat">
+                    <option value="Food">Food & Dining</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Health">Health</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Source</label>
+                  <select id="f-source">
+                    <option value="Cash">Cash</option>
+                    <option value="UPI / Paytm">UPI / Paytm</option>
+                    <option value="PayPal">PayPal</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Debit Card">Debit Card</option>
+                    <option value="Net Banking">Net Banking</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group mb-12">
+                <label>Description</label
+                ><input
+                  type="text"
+                  id="f-desc"
+                  placeholder="What was this for?"
+                />
+              </div>
+              <div class="flex gap-8">
+                <button class="btn btn-primary w-full" onclick="addExpense()">
+                  Add Expense
+                </button>
+                <button class="btn btn-sm" onclick="addSample()">
+                  Load Sample Data
+                </button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">Import from File</div>
+              <div
+                class="drop-zone"
+                id="drop-zone"
+                onclick="document.getElementById('file-input').click()"
+                ondrop="handleDrop(event)"
+                ondragover="event.preventDefault()"
+              >
+                <div class="drop-zone-icon">📂</div>
+                <div style="font-size: 14px; margin-bottom: 4px">
+                  Drop CSV or Excel file here
+                </div>
+                <div class="text-sm text-muted">
+                  Supports .csv, .xlsx from Paytm, PayPal exports
+                </div>
+                <input
+                  type="file"
+                  id="file-input"
+                  accept=".csv,.xlsx"
+                  style="display: none"
+                  onchange="handleFile(event)"
+                />
+              </div>
+              <div style="margin-top: 14px">
+                <div class="section-title" style="font-size: 10px">
+                  Expected CSV Format
+                </div>
+                <div class="code-block">
+                  date,amount,category,source,description
+                  2025-03-01,450,Food,UPI / Paytm,Lunch at cafe
+                  2025-03-02,1200,Transport,Credit Card,Uber rides
+                </div>
+              </div>
+              <div id="import-status"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="flex items-center justify-between mb-12">
+              <div class="section-title" style="margin-bottom: 0">
+                All Transactions
+              </div>
+              <div class="flex gap-8">
+                <select
+                  class="btn btn-sm"
+                  id="filter-cat"
+                  onchange="renderExpenseTable()"
+                  style="padding: 5px 10px"
+                >
+                  <option value="">All Categories</option>
+                  <option>Food</option>
+                  <option>Transport</option>
+                  <option>Utilities</option>
+                  <option>Entertainment</option>
+                  <option>Health</option>
+                  <option>Shopping</option>
+                  <option>Other</option>
+                </select>
+                <button class="btn btn-sm" onclick="exportCSV()">
+                  Export CSV
+                </button>
+              </div>
+            </div>
+            <table class="tbl" id="expense-tbl"></table>
+            <div
+              id="empty-state"
+              style="text-align: center; padding: 40px; color: var(--text3)"
+            >
+              No expenses yet. Add one above or load sample data.
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== ANALYTICS ===================== -->
+        <div class="page" id="page-analytics">
+          <div class="page-title">Analytics</div>
+          <div class="page-sub">Monthly breakdown and spending patterns</div>
+
+          <div class="grid4 mb-16" id="analytics-metrics"></div>
+
+          <div class="grid2 mb-16">
+            <div class="card">
+              <div class="section-title">Daily Spending — This Month</div>
+              <div class="chart-wrap" style="height: 200px">
+                <canvas id="daily-chart"></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <div class="section-title">Category Breakdown</div>
+              <div class="chart-wrap" style="height: 200px">
+                <canvas id="cat-detail-chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="card">
+              <div class="section-title">Month-over-Month Comparison</div>
+              <div class="chart-wrap" style="height: 200px">
+                <canvas id="mom-chart"></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <div class="section-title">Top Spending Sources</div>
+              <div id="source-breakdown"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== FORECAST ===================== -->
+        <div class="page" id="page-forecast">
+          <div class="page-title">Forecast & ML Insights</div>
+          <div class="page-sub">
+            ML-powered expense predictions and anomaly detection
+          </div>
+
+          <!-- <div class="alert alert-info mb-16">
+            <strong>Note:</strong> In production, this connects to AWS SageMaker
+            for real ML models. Below shows simulated linear regression + moving
+            average forecasts based on your data.
+          </div> -->
+
+          <div class="grid2 mb-16">
+            <div class="card">
+              <div class="section-title">6-Month Expense Forecast</div>
+              <div class="chart-wrap" style="height: 220px">
+                <canvas id="forecast-chart"></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <div class="section-title">Category-wise Next Month Forecast</div>
+              <div id="cat-forecast"></div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="card">
+              <div class="section-title">Anomaly Detection</div>
+              <div id="anomaly-detail"></div>
+            </div>
+            <!-- <div class="card">
+              <div class="section-title">ML Model Info</div>
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <div
+                  class="card-sm"
+                  style="border-left: 3px solid var(--accent)"
+                >
+                  <div class="flex items-center gap-8 mb-8">
+                    <span style="color: var(--accent); font-size: 18px">📈</span
+                    ><strong>Linear Regression</strong>
+                  </div>
+                  <div class="text-sm text-muted">
+                    Forecasts monthly totals based on historical trend. Trained
+                    on last 6 months of data. RMSE tracked per category.
+                  </div>
+                </div>
+                <div
+                  class="card-sm"
+                  style="border-left: 3px solid var(--accent3)"
+                >
+                  <div class="flex items-center gap-8 mb-8">
+                    <span style="color: var(--accent3); font-size: 18px"
+                      >〰</span
+                    ><strong>Moving Average</strong>
+                  </div>
+                  <div class="text-sm text-muted">
+                    3-month rolling average smooths seasonal spikes. Used for
+                    short-term day-level predictions.
+                  </div>
+                </div>
+                <div
+                  class="card-sm"
+                  style="border-left: 3px solid var(--accent2)"
+                >
+                  <div class="flex items-center gap-8 mb-8">
+                    <span style="color: var(--accent2); font-size: 18px"
+                      >🔍</span
+                    ><strong>Z-Score Anomaly</strong>
+                  </div>
+                  <div class="text-sm text-muted">
+                    Flags transactions exceeding 2 standard deviations from
+                    category mean. Updated in real-time as you add expenses.
+                  </div>
+                </div>
+              </div>
+            </div> -->
+          </div>
+        </div>
+
+        <!-- ===================== AI ASSISTANT ===================== -->
+        <div class="page" id="page-assistant">
+          <div class="page-title">AI Finance Assistant</div>
+          <div class="page-sub">Ask questions about your spending patterns</div>
+
+          <div class="grid2">
+            <div class="card" style="padding: 0; overflow: hidden">
+              <div class="chat-container">
+                <div class="chat-messages" id="chat-messages"></div>
+                <div class="chat-suggestions" id="chat-suggestions"></div>
+                <div class="chat-input-row">
+                  <input
+                    class="chat-input"
+                    id="chat-input"
+                    placeholder="Ask about your expenses..."
+                    onkeydown="if (event.key === 'Enter') sendChat();"
+                  />
+                  <button class="btn btn-primary" onclick="sendChat()">
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-16">
+              <div class="card">
+                <div class="section-title">Quick Insights</div>
+                <div id="quick-insights"></div>
+              </div>
+              <!-- <div class="card">
+                <div class="section-title">Data Context Sent to AI</div>
+                <div class="text-sm text-muted mb-8">
+                  In the full cloud version, this context is encrypted and sent
+                  securely to Claude via API.
+                </div>
+                <div
+                  class="code-block"
+                  id="ai-context"
+                  style="max-height: 120px; overflow-y: auto; font-size: 11px"
+                ></div>
+              </div> -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== BUDGET ===================== -->
+        <div class="page" id="page-budget">
+          <div class="page-title">Budget Planner</div>
+          <div class="page-sub">
+            Set and track monthly spending limits per category
+          </div>
+
+          <div class="grid2">
+            <div class="card">
+              <div class="section-title">Set Monthly Budgets</div>
+              <div id="budget-form"></div>
+              <button
+                class="btn btn-primary w-full mt-12"
+                onclick="saveBudgets()"
+              >
+                Save Budgets
+              </button>
+            </div>
+            <div class="card">
+              <div class="section-title">Budget vs Actual</div>
+              <div id="budget-bars"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== AWS SETUP ===================== -->
+        <!-- <div class="page" id="page-aws">
+          <div class="page-title">AWS Cloud Setup Guide</div>
+          <div class="page-sub">
+            Connect this app to AWS Free Tier — step-by-step
+          </div>
+
+          <div class="alert alert-info mb-16">
+            All services used below are within AWS Free Tier limits for personal
+            use (12 months free).
+          </div>
+
+          <div class="card mb-16">
+            <div class="section-title">Architecture Overview</div>
+            <div
+              class="flex"
+              style="
+                flex-wrap: wrap;
+                gap: 8px;
+                align-items: center;
+                margin-bottom: 12px;
+              "
+            >
+              <div class="arch-pill">🌐 React Frontend</div>
+              <span style="color: var(--text3)">→</span>
+              <div class="arch-pill">⚡ AWS API Gateway</div>
+              <span style="color: var(--text3)">→</span>
+              <div class="arch-pill">λ Lambda Functions</div>
+              <span style="color: var(--text3)">→</span>
+              <div class="arch-pill">🗄️ DynamoDB</div>
+              <span style="color: var(--text3)">→</span>
+              <div class="arch-pill">🤖 SageMaker</div>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px">
+              <div class="arch-pill">🔐 AWS Cognito (Auth)</div>
+              <div class="arch-pill">🪣 S3 (File Storage)</div>
+              <div class="arch-pill">📧 SNS (Alerts)</div>
+              <div class="arch-pill">🔒 KMS (Encryption)</div>
+              <div class="arch-pill">📊 CloudWatch (Monitoring)</div>
+            </div>
+          </div>
+
+          <div id="aws-steps"></div>
+        </div> -->
+      </div>
+      <!-- /main -->
+    </div>
+    <!-- /app -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script>
+      // ==================== STATE ====================
+      let expenses = [];
+      let budgets = {
+        Food: 3000,
+        Transport: 1500,
+        Utilities: 2000,
+        Entertainment: 1000,
+        Health: 500,
+        Shopping: 2000,
+        Other: 500,
+      };
+      let charts = {};
+      let chatHistory = [];
+
+      const CATS = [
+        "Food",
+        "Transport",
+        "Utilities",
+        "Entertainment",
+        "Health",
+        "Shopping",
+        "Other",
+      ];
+      const CAT_COLORS = {
+        Food: "#43d9ad",
+        Transport: "#c06ff7",
+        Utilities: "#ffd166",
+        Entertainment: "#ff6584",
+        Health: "#7dd87d",
+        Shopping: "#6c63ff",
+        Other: "#9aa0b8",
+      };
+      const MONTHS = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+
+      // ==================== SAMPLE DATA ====================
+      function addSample() {
+        const sample = [
+          {
+            date: "2025-03-01",
+            amount: 450,
+            category: "Food",
+            source: "UPI / Paytm",
+            desc: "Lunch at Saravana Bhavan",
+          },
+          {
+            date: "2025-03-02",
+            amount: 1200,
+            category: "Transport",
+            source: "Credit Card",
+            desc: "Uber monthly pass",
+          },
+          {
+            date: "2025-03-03",
+            amount: 850,
+            category: "Food",
+            source: "Cash",
+            desc: "Grocery shopping",
+          },
+          {
+            date: "2025-03-04",
+            amount: 3500,
+            category: "Utilities",
+            source: "Net Banking",
+            desc: "Electricity bill",
+          },
+          {
+            date: "2025-03-05",
+            amount: 600,
+            category: "Entertainment",
+            source: "Credit Card",
+            desc: "Netflix + Hotstar",
+          },
+          {
+            date: "2025-03-06",
+            amount: 980,
+            category: "Food",
+            source: "UPI / Paytm",
+            desc: "Dinner with friends",
+          },
+          {
+            date: "2025-03-07",
+            amount: 250,
+            category: "Transport",
+            source: "Cash",
+            desc: "Auto fare",
+          },
+          {
+            date: "2025-03-08",
+            amount: 4200,
+            category: "Shopping",
+            source: "Credit Card",
+            desc: "Clothing purchase",
+          },
+          {
+            date: "2025-03-09",
+            amount: 1800,
+            category: "Health",
+            source: "Debit Card",
+            desc: "Doctor consultation + meds",
+          },
+          {
+            date: "2025-03-10",
+            amount: 320,
+            category: "Food",
+            source: "UPI / Paytm",
+            desc: "Coffee & snacks",
+          },
+          {
+            date: "2025-03-11",
+            amount: 500,
+            category: "Utilities",
+            source: "Net Banking",
+            desc: "Internet bill",
+          },
+          {
+            date: "2025-03-12",
+            amount: 7800,
+            category: "Shopping",
+            source: "Credit Card",
+            desc: "Electronics - headphones",
+          },
+          {
+            date: "2025-03-13",
+            amount: 650,
+            category: "Food",
+            source: "Cash",
+            desc: "Fruits & vegetables",
+          },
+          {
+            date: "2025-03-14",
+            amount: 1100,
+            category: "Entertainment",
+            source: "UPI / Paytm",
+            desc: "Movie tickets",
+          },
+          {
+            date: "2025-03-15",
+            amount: 900,
+            category: "Food",
+            source: "UPI / Paytm",
+            desc: "Weekend brunch",
+          },
+          {
+            date: "2025-02-10",
+            amount: 3200,
+            category: "Shopping",
+            source: "Credit Card",
+            desc: "Feb shopping",
+          },
+          {
+            date: "2025-02-15",
+            amount: 2800,
+            category: "Food",
+            source: "UPI / Paytm",
+            desc: "Feb food",
+          },
+          {
+            date: "2025-02-20",
+            amount: 1600,
+            category: "Transport",
+            source: "Cash",
+            desc: "Feb transport",
+          },
+          {
+            date: "2025-01-12",
+            amount: 2500,
+            category: "Utilities",
+            source: "Net Banking",
+            desc: "Jan utilities",
+          },
+          {
+            date: "2025-01-20",
+            amount: 1800,
+            category: "Health",
+            source: "Debit Card",
+            desc: "Jan health",
+          },
+        ];
+        sample.forEach((e) =>
+          expenses.push({ ...e, id: Date.now() + Math.random() }),
+        );
+        updateAll();
+        document.getElementById("add-form-alert").innerHTML =
+          '<div class="alert alert-success">Sample data loaded successfully!</div>';
+        setTimeout(
+          () => (document.getElementById("add-form-alert").innerHTML = ""),
+          3000,
+        );
+      }
+
+      // ==================== ADD EXPENSE ====================
+      // ═══════════════════════════════════════════════════════════════
+      // STEP 3A: REPLACE addExpense() — saves to DynamoDB
+      // ═══════════════════════════════════════════════════════════════
+      async function addExpense() {
+        const date = document.getElementById("f-date").value;
+        const amount = parseFloat(document.getElementById("f-amount").value);
+        const category = document.getElementById("f-cat").value;
+        const source = document.getElementById("f-source").value;
+        const desc = document.getElementById("f-desc").value;
+        const alertEl = document.getElementById("add-form-alert");
+
+        // Validate inputs
+        if (!date || !amount || amount <= 0) {
+          alertEl.innerHTML =
+            '<div class="alert alert-danger">Enter valid date and amount.</div>';
+          return;
+        }
+
+        alertEl.innerHTML =
+          '<div class="alert alert-info">Saving to cloud...</div>';
+
+        try {
+          // POST to API Gateway → Lambda → DynamoDB
+          const res = await fetch(AWS_CONFIG.API_URL + "/expenses", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: Auth.token,
+            },
+            body: JSON.stringify({
+              date,
+              amount,
+              category,
+              source,
+              description: desc,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) throw new Error(data.error || "Save failed");
+
+          // Add to local array so UI updates instantly
+          expenses.push({
+            id: data.expenseId,
+            date,
+            amount,
+            category,
+            source,
+            desc: desc || category,
+          });
+
+          // Clear the form
+          document.getElementById("f-amount").value = "";
+          document.getElementById("f-desc").value = "";
+
+          alertEl.innerHTML =
+            '<div class="alert alert-success">Saved to cloud!</div>';
+          setTimeout(() => (alertEl.innerHTML = ""), 2500);
+
+          updateAll();
+        } catch (e) {
+          alertEl.innerHTML =
+            '<div class="alert alert-danger">Error: ' + e.message + "</div>";
+        }
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // STEP 3B: REPLACE deleteExpense() — deletes from DynamoDB
+      // ═══════════════════════════════════════════════════════════════
+      async function deleteExpense(id) {
+        try {
+          // DELETE to API Gateway → Lambda → DynamoDB
+          const res = await fetch(AWS_CONFIG.API_URL + "/expenses/" + id, {
+            method: "DELETE",
+            headers: { Authorization: Auth.token },
+          });
+
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || "Delete failed");
+          }
+
+          // Remove from local array
+          expenses = expenses.filter((e) => e.id !== id);
+          updateAll();
+        } catch (e) {
+          alert("Could not delete: " + e.message);
+        }
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // STEP 3C: NEW FUNCTION — loads all expenses from DynamoDB
+      // Paste this anywhere in your <script> block
+      // ═══════════════════════════════════════════════════════════════
+      async function loadExpensesFromCloud(month = null) {
+        try {
+          // Build URL — optionally filter by month e.g. '2025-03'
+          const url = month
+            ? AWS_CONFIG.API_URL + "/expenses?month=" + month
+            : AWS_CONFIG.API_URL + "/expenses";
+
+          const res = await fetch(url, {
+            method: "GET",
+            headers: { Authorization: Auth.token },
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) throw new Error(data.error || "Load failed");
+
+          // Map DynamoDB field names to the format the app expects
+          expenses = (data.expenses || []).map((e) => ({
+            id: e.expenseId,
+            date: e.date,
+            amount: Number(e.amount),
+            category: e.category,
+            source: e.source,
+            desc: e.description || e.category,
+          }));
+
+          updateAll();
+        } catch (e) {
+          console.error("Could not load expenses:", e.message);
+        }
+      }
+
+      // ==================== FILE IMPORT ====================
+      function handleDrop(e) {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file) processFile(file);
+      }
+      function handleFile(e) {
+        processFile(e.target.files[0]);
+      }
+      function processFile(file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const text = e.target.result;
+          const lines = text.split("\n").filter((l) => l.trim());
+          let count = 0;
+          for (let i = 1; i < lines.length; i++) {
+            const parts = lines[i].split(",");
+            if (parts.length >= 4) {
+              const [date, amount, category, source, ...rest] = parts;
+              const a = parseFloat(amount);
+              if (date && a > 0) {
+                expenses.push({
+                  id: Date.now() + i,
+                  date: date.trim(),
+                  amount: a,
+                  category: (category || "Other").trim(),
+                  source: (source || "Other").trim(),
+                  desc: rest.join(",").trim() || "Import",
+                });
+                count++;
+              }
+            }
+          }
+          document.getElementById("import-status").innerHTML =
+            `<div class="alert alert-success mt-12">${count} transactions imported!</div>`;
+          updateAll();
+        };
+        reader.readAsText(file);
+      }
+
+      // ==================== EXPORT ====================
+      function exportCSV() {
+        const hdr = "date,amount,category,source,description\n";
+        const rows = expenses
+          .map(
+            (e) =>
+              `${e.date},${e.amount},${e.category},${e.source},"${e.desc}"`,
+          )
+          .join("\n");
+        const blob = new Blob([hdr + rows], { type: "text/csv" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "expenses.csv";
+        a.click();
+      }
+
+      // ==================== CALC HELPERS ====================
+      function getMonthExpenses(y, m) {
+        return expenses.filter((e) => {
+          const d = new Date(e.date);
+          return d.getFullYear() === y && d.getMonth() === m;
+        });
+      }
+      function sumAmt(arr) {
+        return arr.reduce((s, e) => s + e.amount, 0);
+      }
+      function catSum(arr, cat) {
+        return sumAmt(arr.filter((e) => e.category === cat));
+      }
+      function fmt(n) {
+        return "₹" + Math.round(n).toLocaleString("en-IN");
+      }
+      function fmtK(n) {
+        return n >= 1000
+          ? "₹" + (n / 1000).toFixed(1) + "K"
+          : "₹" + Math.round(n);
+      }
+
+      // ==================== ANOMALY DETECTION ====================
+      function detectAnomalies() {
+        const results = [];
+        CATS.forEach((cat) => {
+          const catExp = expenses.filter((e) => e.category === cat);
+          if (catExp.length < 2) return;
+          const vals = catExp.map((e) => e.amount);
+          const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+          const std = Math.sqrt(
+            vals.map((v) => Math.pow(v - mean, 2)).reduce((a, b) => a + b, 0) /
+              vals.length,
+          );
+          catExp.forEach((e) => {
+            const z = std > 0 ? Math.abs((e.amount - mean) / std) : 0;
+            if (z > 1.8)
+              results.push({ ...e, z: z.toFixed(1), mean: Math.round(mean) });
+          });
+        });
+        return results.sort((a, b) => b.z - a.z).slice(0, 5);
+      }
+
+      // ==================== FORECAST ====================
+      function linearForecast(vals) {
+        if (vals.length < 2) return vals[vals.length - 1] || 0;
+        const n = vals.length,
+          sx = (n * (n - 1)) / 2,
+          sx2 = (n * (n - 1) * (2 * n - 1)) / 6;
+        const sy = vals.reduce((a, b) => a + b, 0),
+          sxy = vals.reduce((s, v, i) => s + i * v, 0);
+        const slope = (n * sxy - sx * sy) / (n * sx2 - sx * sx);
+        const intercept = (sy - slope * sx) / n;
+        return Math.max(0, slope * n + intercept);
+      }
+
+      // ==================== UPDATE ALL ====================
+      function updateAll() {
+        updateMetrics();
+        renderExpenseTable();
+        renderCharts();
+        renderAnalytics();
+        renderForecast();
+        updateChatContext();
+        renderBudgetBars();
+        renderAnomalies();
+        updateBadge();
+      }
+
+      function updateBadge() {
+        const now = new Date(),
+          m = getMonthExpenses(now.getFullYear(), now.getMonth());
+        document.getElementById("total-badge").textContent =
+          `Mar: ${fmtK(sumAmt(m))}`;
+      }
+
+      // ==================== METRICS ====================
+      function updateMetrics() {
+        const now = new Date(),
+          y = now.getFullYear(),
+          m = now.getMonth();
+        const cur = getMonthExpenses(y, m),
+          prev = getMonthExpenses(y, m - 1 < 0 ? y - 1 : y, (m - 1 + 12) % 12);
+        const curTotal = sumAmt(cur),
+          prevTotal = sumAmt(prev);
+        const diff =
+          prevTotal > 0
+            ? (((curTotal - prevTotal) / prevTotal) * 100).toFixed(1)
+            : 0;
+        const topCat = CATS.reduce(
+          (a, c) => (catSum(cur, c) > catSum(cur, a) ? c : a),
+          CATS[0],
+        );
+        const avgDay =
+          cur.length > 0 ? (curTotal / new Date().getDate()).toFixed(0) : 0;
+
+        const g = document.getElementById("metrics-grid");
+        g.innerHTML = `
+    <div class="metric"><div class="metric-label">This Month</div><div class="metric-val metric-neutral">${fmt(curTotal)}</div><div class="metric-sub">${diff > 0 ? "↑" : "↓"} ${Math.abs(diff)}% vs last month</div></div>
+    <div class="metric"><div class="metric-label">Daily Average</div><div class="metric-val" style="color:var(--accent4)">${fmt(avgDay)}</div><div class="metric-sub">${cur.length} transactions</div></div>
+    <div class="metric"><div class="metric-label">Top Category</div><div class="metric-val" style="color:${CAT_COLORS[topCat] || "#fff"};font-size:16px">${topCat}</div><div class="metric-sub">${fmt(catSum(cur, topCat))}</div></div>
+    <div class="metric"><div class="metric-label">Anomalies</div><div class="metric-val metric-down">${detectAnomalies().length}</div><div class="metric-sub">unusual transactions</div></div>
+  `;
+
+        const ag = document.getElementById("analytics-metrics");
+        if (ag) {
+          const allTotal = sumAmt(expenses);
+          const avgCat = Math.round(allTotal / Math.max(1, expenses.length));
+          ag.innerHTML = `
+      <div class="metric"><div class="metric-label">Total Logged</div><div class="metric-val metric-neutral">${fmt(allTotal)}</div><div class="metric-sub">${expenses.length} entries</div></div>
+      <div class="metric"><div class="metric-label">Avg per Transaction</div><div class="metric-val" style="color:var(--accent4)">${fmt(avgCat)}</div><div class="metric-sub">across all time</div></div>
+      <div class="metric"><div class="metric-label">Highest Single</div><div class="metric-val metric-down">${fmt(Math.max(0, ...expenses.map((e) => e.amount)))}</div><div class="metric-sub">largest transaction</div></div>
+      <div class="metric"><div class="metric-label">Categories Used</div><div class="metric-val" style="color:var(--accent3)">${new Set(expenses.map((e) => e.category)).size}</div><div class="metric-sub">out of 7</div></div>
+    `;
+        }
+      }
+
+      // ==================== CHARTS ====================
+      function destroyChart(id) {
+        if (charts[id]) {
+          charts[id].destroy();
+          delete charts[id];
+        }
+      }
+
+      function renderCharts() {
+        const now = new Date(),
+          y = now.getFullYear(),
+          m = now.getMonth();
+
+        // Monthly bar
+        destroyChart("monthly-chart");
+        const mLabels = [],
+          mData = [];
+        for (let i = 5; i >= 0; i--) {
+          const mm = (m - i + 12) % 12;
+          mLabels.push(MONTHS[mm]);
+          mData.push(sumAmt(getMonthExpenses(y, mm)));
+        }
+        charts["monthly-chart"] = new Chart(
+          document.getElementById("monthly-chart"),
+          {
+            type: "bar",
+            data: {
+              labels: mLabels,
+              datasets: [
+                {
+                  data: mData,
+                  backgroundColor: "#6c63ff88",
+                  borderColor: "#6c63ff",
+                  borderWidth: 1,
+                  borderRadius: 4,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { ticks: { color: "#5a6080" }, grid: { color: "#2a2f4a" } },
+                y: {
+                  ticks: { color: "#5a6080", callback: (v) => fmtK(v) },
+                  grid: { color: "#2a2f4a" },
+                },
+              },
+            },
+          },
+        );
+
+        // Category donut
+        destroyChart("cat-chart");
+        const cur = getMonthExpenses(y, m);
+        const catData = CATS.map((c) => catSum(cur, c));
+        charts["cat-chart"] = new Chart(document.getElementById("cat-chart"), {
+          type: "doughnut",
+          data: {
+            labels: CATS,
+            datasets: [
+              {
+                data: catData,
+                backgroundColor: CATS.map((c) => CAT_COLORS[c] + "aa"),
+                borderColor: CATS.map((c) => CAT_COLORS[c]),
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "right",
+                labels: { color: "#9aa0b8", font: { size: 11 }, boxWidth: 10 },
+              },
+            },
+          },
+        });
+      }
+
+      function renderAnalytics() {
+        const now = new Date(),
+          y = now.getFullYear(),
+          m = now.getMonth();
+        const cur = getMonthExpenses(y, m);
+
+        // Daily chart
+        destroyChart("daily-chart");
+        const days = {};
+        cur.forEach((e) => {
+          const d = new Date(e.date).getDate();
+          days[d] = (days[d] || 0) + e.amount;
+        });
+        const dayLabels = Object.keys(days).sort((a, b) => a - b);
+        const dayData = dayLabels.map((d) => days[d]);
+        if (document.getElementById("daily-chart")) {
+          charts["daily-chart"] = new Chart(
+            document.getElementById("daily-chart"),
+            {
+              type: "line",
+              data: {
+                labels: dayLabels,
+                datasets: [
+                  {
+                    data: dayData,
+                    borderColor: "#43d9ad",
+                    backgroundColor: "#43d9ad22",
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    pointBackgroundColor: "#43d9ad",
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: {
+                    ticks: { color: "#5a6080" },
+                    grid: { color: "#2a2f4a" },
+                  },
+                  y: {
+                    ticks: { color: "#5a6080", callback: (v) => fmtK(v) },
+                    grid: { color: "#2a2f4a" },
+                  },
+                },
+              },
+            },
+          );
+        }
+
+        // Category detail
+        destroyChart("cat-detail-chart");
+        const catAmts = CATS.map((c) => catSum(cur, c));
+        if (document.getElementById("cat-detail-chart")) {
+          charts["cat-detail-chart"] = new Chart(
+            document.getElementById("cat-detail-chart"),
+            {
+              type: "bar",
+              data: {
+                labels: CATS,
+                datasets: [
+                  {
+                    data: catAmts,
+                    backgroundColor: CATS.map((c) => CAT_COLORS[c] + "99"),
+                    borderColor: CATS.map((c) => CAT_COLORS[c]),
+                    borderWidth: 1,
+                    borderRadius: 4,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: {
+                    ticks: { color: "#5a6080", maxRotation: 30 },
+                    grid: { color: "#2a2f4a" },
+                  },
+                  y: {
+                    ticks: { color: "#5a6080", callback: (v) => fmtK(v) },
+                    grid: { color: "#2a2f4a" },
+                  },
+                },
+              },
+            },
+          );
+        }
+
+        // MoM
+        destroyChart("mom-chart");
+        const momLabels = [],
+          curData = [],
+          prevData2 = [];
+        for (let i = 2; i >= 0; i--) {
+          const mm = (m - i + 12) % 12;
+          momLabels.push(MONTHS[mm]);
+          curData.push(sumAmt(getMonthExpenses(y, mm)));
+          prevData2.push(sumAmt(getMonthExpenses(y - 1, mm)));
+        }
+        if (document.getElementById("mom-chart")) {
+          charts["mom-chart"] = new Chart(
+            document.getElementById("mom-chart"),
+            {
+              type: "bar",
+              data: {
+                labels: momLabels,
+                datasets: [
+                  {
+                    label: "2025",
+                    data: curData,
+                    backgroundColor: "#6c63ff88",
+                    borderColor: "#6c63ff",
+                    borderWidth: 1,
+                    borderRadius: 4,
+                  },
+                  {
+                    label: "2024",
+                    data: prevData2,
+                    backgroundColor: "#ff658488",
+                    borderColor: "#ff6584",
+                    borderWidth: 1,
+                    borderRadius: 4,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { labels: { color: "#9aa0b8", font: { size: 11 } } },
+                },
+                scales: {
+                  x: {
+                    ticks: { color: "#5a6080" },
+                    grid: { color: "#2a2f4a" },
+                  },
+                  y: {
+                    ticks: { color: "#5a6080", callback: (v) => fmtK(v) },
+                    grid: { color: "#2a2f4a" },
+                  },
+                },
+              },
+            },
+          );
+        }
+
+        // Source breakdown
+        const srcEl = document.getElementById("source-breakdown");
+        if (srcEl) {
+          const srcs = {};
+          expenses.forEach((e) => {
+            srcs[e.source] = (srcs[e.source] || 0) + e.amount;
+          });
+          const sorted = Object.entries(srcs).sort((a, b) => b[1] - a[1]);
+          const total = Object.values(srcs).reduce((a, b) => a + b, 0) || 1;
+          srcEl.innerHTML =
+            sorted
+              .map(
+                ([s, v]) => `
+      <div class="budget-item">
+        <div class="budget-header"><span class="budget-cat">${s}</span><span class="budget-nums">${fmt(v)} · ${Math.round((v / total) * 100)}%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:${Math.round((v / total) * 100)}%;background:var(--accent)"></div></div>
+      </div>`,
+              )
+              .join("") || '<div class="text-muted text-sm">No data yet.</div>';
+        }
+      }
+
+      function renderForecast() {
+        // Get monthly totals for last 6 months
+        const now = new Date(),
+          y = now.getFullYear(),
+          m = now.getMonth();
+        const histMonths = [];
+        for (let i = 5; i >= 0; i--)
+          histMonths.push(sumAmt(getMonthExpenses(y, (m - i + 12) % 12)));
+        const nextMonths = [linearForecast(histMonths)];
+        for (let i = 1; i < 3; i++)
+          nextMonths.push(
+            linearForecast([...histMonths, ...nextMonths.slice(0, i)]),
+          );
+
+        destroyChart("forecast-chart");
+        const fLabels = [...Array(6).keys()]
+          .map((i) => MONTHS[(m - 5 + i + 12) % 12])
+          .concat(["Apr", "May", "Jun"]);
+        const histData = [...histMonths, ...Array(3).fill(null)];
+        const foreData = [...Array(6).fill(null), histMonths[5], ...nextMonths];
+        if (document.getElementById("forecast-chart")) {
+          charts["forecast-chart"] = new Chart(
+            document.getElementById("forecast-chart"),
+            {
+              type: "line",
+              data: {
+                labels: fLabels,
+                datasets: [
+                  {
+                    label: "Actual",
+                    data: histData,
+                    borderColor: "#6c63ff",
+                    backgroundColor: "#6c63ff22",
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: "#6c63ff",
+                  },
+                  {
+                    label: "Forecast",
+                    data: foreData,
+                    borderColor: "#ffd166",
+                    backgroundColor: "#ffd16622",
+                    borderDash: [5, 5],
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: "#ffd166",
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { labels: { color: "#9aa0b8", font: { size: 11 } } },
+                },
+                scales: {
+                  x: {
+                    ticks: { color: "#5a6080" },
+                    grid: { color: "#2a2f4a" },
+                  },
+                  y: {
+                    ticks: { color: "#5a6080", callback: (v) => fmtK(v) },
+                    grid: { color: "#2a2f4a" },
+                  },
+                },
+              },
+            },
+          );
+        }
+
+        // Category forecast
+        const cfEl = document.getElementById("cat-forecast");
+        if (cfEl) {
+          const maxV = Math.max(
+            ...CATS.map((c) => {
+              const h = [];
+              for (let i = 2; i >= 0; i--)
+                h.push(catSum(getMonthExpenses(y, (m - i + 12) % 12), c));
+              return linearForecast(h);
+            }),
+            1,
+          );
+          cfEl.innerHTML = CATS.map((c) => {
+            const h = [];
+            for (let i = 2; i >= 0; i--)
+              h.push(catSum(getMonthExpenses(y, (m - i + 12) % 12), c));
+            const fc = Math.round(linearForecast(h));
+            const pct = Math.round((fc / maxV) * 100);
+            return `<div class="forecast-bar-row">
+        <div class="forecast-bar-label" style="color:${CAT_COLORS[c]}">${c.slice(0, 4)}</div>
+        <div class="forecast-bar-track"><div class="forecast-bar-fill" style="width:${pct}%;background:${CAT_COLORS[c]}"></div></div>
+        <div class="forecast-bar-val" style="color:${CAT_COLORS[c]}">${fmt(fc)}</div>
+      </div>`;
+          }).join("");
+        }
+      }
+
+      // ==================== ANOMALIES ====================
+      function renderAnomalies() {
+        const anomalies = detectAnomalies();
+        const icons = {
+          Food: "🍔",
+          Transport: "🚗",
+          Utilities: "💡",
+          Entertainment: "🎬",
+          Health: "💊",
+          Shopping: "🛍",
+          Other: "📦",
+        };
+        const html =
+          anomalies.length === 0
+            ? '<div class="text-muted text-sm" style="padding:20px 0;text-align:center">No anomalies detected. Your spending looks normal!</div>'
+            : anomalies
+                .map(
+                  (a) => `
+      <div class="anomaly-row">
+        <div class="anomaly-icon ${a.z > 2.5 ? "anomaly-high" : a.z > 2 ? "anomaly-warn" : "anomaly-low"}">${icons[a.category] || "📦"}</div>
+        <div style="flex:1">
+          <div style="font-size:13px">${a.desc} <span style="color:var(--text3)">· ${a.date}</span></div>
+          <div class="text-sm text-muted">${a.category} · ${fmt(a.amount)} vs avg ${fmt(a.mean)}</div>
+        </div>
+        <div style="font-size:12px;color:var(--accent2);font-family:var(--mono)">z=${a.z}</div>
+      </div>`,
+                )
+                .join("");
+
+        ["anomaly-list", "anomaly-detail"].forEach((id) => {
+          if (document.getElementById(id))
+            document.getElementById(id).innerHTML = html;
+        });
+      }
+
+      // ==================== EXPENSE TABLE ====================
+      function renderExpenseTable() {
+        const filterCat = document.getElementById("filter-cat")
+          ? document.getElementById("filter-cat").value
+          : "";
+        const filtered = filterCat
+          ? expenses.filter((e) => e.category === filterCat)
+          : expenses;
+        const sorted = [...filtered].sort(
+          (a, b) => new Date(b.date) - new Date(a.date),
+        );
+
+        const tbl = document.getElementById("expense-tbl");
+        const empty = document.getElementById("empty-state");
+        if (!tbl) return;
+        if (sorted.length === 0) {
+          tbl.innerHTML = "";
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+
+        tbl.innerHTML =
+          `<thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Source</th><th>Amount</th><th></th></tr></thead><tbody>` +
+          sorted
+            .map(
+              (e) => `<tr>
+      <td class="text-mono" style="font-size:12px">${e.date}</td>
+      <td>${e.desc}</td>
+      <td><span class="badge badge-${e.category.toLowerCase()}">${e.category}</span></td>
+      <td class="text-muted text-sm">${e.source}</td>
+      <td class="text-mono" style="text-align:right">${fmt(e.amount)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteExpense(${e.id})">×</button></td>
+    </tr>`,
+            )
+            .join("") +
+          "</tbody>";
+
+        // Also update recent in dashboard
+        const rec = document.getElementById("recent-tbl");
+        if (rec)
+          rec.innerHTML =
+            `<thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th></tr></thead><tbody>` +
+            sorted
+              .slice(0, 5)
+              .map(
+                (e) => `<tr>
+      <td class="text-mono" style="font-size:11px">${e.date}</td>
+      <td style="font-size:12px">${e.desc}</td>
+      <td><span class="badge badge-${e.category.toLowerCase()}">${e.category}</span></td>
+      <td class="text-mono" style="text-align:right;font-size:12px">${fmt(e.amount)}</td>
+    </tr>`,
+              )
+              .join("") +
+            "</tbody>";
+      }
+
+      // ==================== BUDGETS ====================
+      function renderBudgetForm() {
+        const el = document.getElementById("budget-form");
+        if (!el) return;
+        el.innerHTML = CATS.map(
+          (c) => `
+    <div class="form-group mb-12">
+      <label style="color:${CAT_COLORS[c]}">${c}</label>
+      <input type="number" id="budget-${c}" value="${budgets[c] || 0}" placeholder="Monthly limit">
+    </div>`,
+        ).join("");
+      }
+
+      function saveBudgets() {
+        CATS.forEach((c) => {
+          const el = document.getElementById(`budget-${c}`);
+          if (el) budgets[c] = parseFloat(el.value) || 0;
+        });
+        renderBudgetBars();
+        alert("Budgets saved!");
+      }
+
+      function renderBudgetBars() {
+        const el = document.getElementById("budget-bars");
+        if (!el) return;
+        const now = new Date(),
+          cur = getMonthExpenses(now.getFullYear(), now.getMonth());
+        el.innerHTML = CATS.map((c) => {
+          const spent = catSum(cur, c),
+            limit = budgets[c] || 0,
+            pct =
+              limit > 0 ? Math.min(100, Math.round((spent / limit) * 100)) : 0;
+          const color = pct > 90 ? "#ff6584" : pct > 70 ? "#ffd166" : "#43d9ad";
+          return `<div class="budget-item">
+      <div class="budget-header">
+        <span class="budget-cat" style="color:${CAT_COLORS[c]}">${c}</span>
+        <span class="budget-nums">${fmt(spent)} / ${fmt(limit)} (${pct}%)</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+    </div>`;
+        }).join("");
+      }
+
+      // ==================== AI CHATBOT (STATIC) ====================
+      const BOT_RESPONSES = {
+        "increase|more|higher|went up": ({
+          topCat,
+          curTotal,
+          prevTotal,
+          diff,
+        }) =>
+          `📈 Your spending ${diff > 0 ? "increased" : "changed"} by <strong>${Math.abs(diff)}%</strong> compared to last month (${fmt(prevTotal)} → ${fmt(curTotal)}). The biggest driver is <strong>${topCat}</strong>, which accounted for the largest share. Consider reviewing discretionary purchases in that category.`,
+        "top|most|highest|biggest": ({ topCat, topAmt }) =>
+          `🏆 Your highest spending category this month is <strong>${topCat}</strong> at <strong>${fmt(topAmt)}</strong>. This typically includes ${topCat === "Food" ? "dining, groceries, and snacks" : topCat === "Shopping" ? "retail, clothing, and online orders" : "regular bills and services"}.`,
+        "anomal|unusual|weird|strange": ({ anomCount }) =>
+          anomCount > 0
+            ? `🔍 I detected <strong>${anomCount} anomalous transaction(s)</strong> in your data — these are expenses that deviate significantly (z-score > 1.8) from your average in that category. Check the Forecast & ML tab for details.`
+            : `✅ No anomalies detected! Your spending is consistent across all categories.`,
+        "save|saving|cut|reduce|less": ({ curTotal, avgDay }) =>
+          `💡 To reduce expenses: 1) Your daily average is <strong>${fmt(avgDay)}</strong> — aim to reduce by 10-15%. 2) Review subscriptions in Entertainment. 3) Batch grocery shopping reduces Food costs. 4) Use public transport where possible to cut Transport costs.`,
+        "budget|limit|over": ({ overBudget }) =>
+          overBudget.length > 0
+            ? `⚠️ You are over budget in: <strong>${overBudget.join(", ")}</strong>. Consider adjusting your limits or cutting back in these categories this month.`
+            : `✅ Great news! You are within budget across all categories this month.`,
+        "forecast|predict|next month|future": ({ nextMonthFc }) =>
+          `🔮 Based on your spending trend, I forecast next month's total to be approximately <strong>${fmt(nextMonthFc)}</strong>. This uses linear regression on the last 3-6 months. Categories like Shopping and Food tend to have higher variance.`,
+        "source|paytm|upi|paypal|card": ({ topSource }) =>
+          `💳 Your most used payment method is <strong>${topSource}</strong>. Using UPI/Paytm more frequently can help with tracking since most apps provide auto-categorized statements you can import here.`,
+        "hello|hi|hey|help": () =>
+          `👋 Hi! I'm your FinLens AI assistant. I can help you understand your spending patterns. Try asking: <strong>"Why did my expenses increase?"</strong>, <strong>"What's my top category?"</strong>, or <strong>"Am I over budget?"</strong>`,
+      };
+
+      function getChatContext() {
+        const now = new Date(),
+          y = now.getFullYear(),
+          m = now.getMonth();
+        const cur = getMonthExpenses(y, m),
+          prev = getMonthExpenses(y, (m - 1 + 12) % 12);
+        const curTotal = sumAmt(cur),
+          prevTotal = sumAmt(prev);
+        const diff =
+          prevTotal > 0
+            ? (((curTotal - prevTotal) / prevTotal) * 100).toFixed(1)
+            : 0;
+        const topCat = CATS.reduce(
+          (a, c) => (catSum(cur, c) > catSum(cur, a) ? c : a),
+          CATS[0],
+        );
+        const topAmt = catSum(cur, topCat);
+        const avgDay = cur.length > 0 ? curTotal / new Date().getDate() : 0;
+        const anomCount = detectAnomalies().length;
+        const overBudget = CATS.filter((c) => catSum(cur, c) > budgets[c]);
+        const srcs = {};
+        expenses.forEach((e) => {
+          srcs[e.source] = (srcs[e.source] || 0) + e.amount;
+        });
+        const topSource =
+          Object.entries(srcs).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+        const histMonths = [];
+        for (let i = 2; i >= 0; i--)
+          histMonths.push(sumAmt(getMonthExpenses(y, (m - i + 12) % 12)));
+        const nextMonthFc = Math.round(linearForecast(histMonths));
+        return {
+          curTotal,
+          prevTotal,
+          diff,
+          topCat,
+          topAmt,
+          avgDay,
+          anomCount,
+          overBudget,
+          topSource,
+          nextMonthFc,
+        };
+      }
+
+      function updateChatContext() {
+        const ctx = getChatContext();
+        const el = document.getElementById("ai-context");
+        if (el) el.textContent = JSON.stringify(ctx, null, 2);
+        const qi = document.getElementById("quick-insights");
+        if (qi)
+          qi.innerHTML = `
+    <div class="anomaly-row"><div style="color:var(--accent3);font-size:16px;margin-right:8px">📊</div><div><div class="text-sm">This month vs last month</div><div style="font-size:13px;margin-top:2px">${fmt(ctx.curTotal)} <span style="color:${ctx.diff > 0 ? "#ff6584" : "#43d9ad"}">${ctx.diff > 0 ? "↑" : "↓"}${Math.abs(ctx.diff)}%</span></div></div></div>
+    <div class="anomaly-row"><div style="color:var(--accent4);font-size:16px;margin-right:8px">📈</div><div><div class="text-sm">Next month forecast</div><div style="font-size:13px;margin-top:2px">${fmt(ctx.nextMonthFc)}</div></div></div>
+    <div class="anomaly-row"><div style="color:var(--accent2);font-size:16px;margin-right:8px">⚠️</div><div><div class="text-sm">Over-budget categories</div><div style="font-size:13px;margin-top:2px">${ctx.overBudget.length ? ctx.overBudget.join(", ") : "None — all within limits"}</div></div></div>
+  `;
+      }
+
+      function initChat() {
+        addBotMsg(
+          "👋 Hi! I'm your FinLens AI assistant. I analyze your local expense data to answer questions about your spending. Try one of the suggestions below, or type your own question!",
+        );
+        renderSuggestions();
+      }
+
+      function renderSuggestions() {
+        const sugg = [
+          "Why did my expenses increase?",
+          "What is my top spending category?",
+          "Am I over budget?",
+          "Any unusual transactions?",
+          "Forecast next month",
+        ];
+        document.getElementById("chat-suggestions").innerHTML = sugg
+          .map(
+            (s) =>
+              `<div class="chat-suggestion" onclick="quickAsk('${s}')">${s}</div>`,
+          )
+          .join("");
+      }
+
+      function addBotMsg(text) {
+        const msgs = document.getElementById("chat-messages");
+        const div = document.createElement("div");
+        div.className = "chat-msg chat-msg-bot";
+        div.innerHTML = text;
+        msgs.appendChild(div);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+      function addUserMsg(text) {
+        const msgs = document.getElementById("chat-messages");
+        const div = document.createElement("div");
+        div.className = "chat-msg chat-msg-user";
+        div.textContent = text;
+        msgs.appendChild(div);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      function quickAsk(q) {
+        document.getElementById("chat-input").value = q;
+        sendChat();
+      }
+
+      function sendChat() {
+        const input = document.getElementById("chat-input");
+        const q = input.value.trim();
+        if (!q) return;
+        addUserMsg(q);
+        input.value = "";
+
+        // Show typing
+        const msgs = document.getElementById("chat-messages");
+        const typing = document.createElement("div");
+        typing.className = "chat-msg chat-msg-bot typing";
+        typing.innerHTML = "<span></span><span></span><span></span>";
+        msgs.appendChild(typing);
+        msgs.scrollTop = msgs.scrollHeight;
+
+        setTimeout(() => {
+          typing.remove();
+          const ctx = getChatContext();
+          const qLower = q.toLowerCase();
+          let response = `I don't have specific data about "${q}" yet. Try asking about your top categories, budget status, or spending forecast. Load some sample data first for richer insights!`;
+          for (const [pattern, fn] of Object.entries(BOT_RESPONSES)) {
+            if (new RegExp(pattern).test(qLower)) {
+              response = fn(ctx);
+              break;
+            }
+          }
+          addBotMsg(response);
+        }, 800);
+      }
+
+      // ==================== AWS STEPS ====================
+      function renderAWSSteps() {
+        const steps = [
+          {
+            title: "Create AWS Free Tier Account",
+            color: "#6c63ff",
+            content: `
+      <ol style="padding-left:18px;line-height:2">
+        <li>Go to <strong>aws.amazon.com</strong> → Create a free account</li>
+        <li>Enter credit card (won't be charged for free tier services)</li>
+        <li>Select <strong>Basic Support Plan (Free)</strong></li>
+        <li>Enable MFA on root account for security</li>
+        <li>Create an IAM user with limited permissions (never use root for dev)</li>
+      </ol>`,
+          },
+          {
+            title: "Set Up DynamoDB (Database)",
+            color: "#43d9ad",
+            content: `
+      <div class="code-block">
+# AWS CLI command
+aws dynamodb create-table \\
+  --table-name Expenses \\
+  --attribute-definitions \\
+      AttributeName=userId,AttributeType=S \\
+      AttributeName=expenseId,AttributeType=S \\
+  --key-schema \\
+      AttributeName=userId,KeyType=HASH \\
+      AttributeName=expenseId,KeyType=RANGE \\
+  --billing-mode PAY_PER_REQUEST \\
+  --sse-specification Enabled=true  # Encryption at rest</div>
+      <div class="text-sm text-muted">Free Tier: 25 GB storage + 25 read/write capacity units/month</div>`,
+          },
+          {
+            title: "Create Lambda Functions (Backend API)",
+            color: "#ffd166",
+            content: `
+      <div class="code-block">
+# expenses/handler.py
+import boto3, json, uuid
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('Expenses')
+
+def add_expense(event, context):
+    user_id = event['requestContext']['authorizer']['claims']['sub']
+    body = json.loads(event['body'])
+    expense = {
+        'userId': user_id,
+        'expenseId': str(uuid.uuid4()),
+        'amount': body['amount'],
+        'category': body['category'],
+        'date': body['date'],
+        'source': body['source'],
+        'description': body.get('description', '')
+    }
+    table.put_item(Item=expense)
+    return {'statusCode': 200, 'body': json.dumps({'success': True})}</div>`,
+          },
+          {
+            title: "Configure API Gateway",
+            color: "#ff6584",
+            content: `
+      <div class="code-block">
+# serverless.yml (using Serverless Framework)
+service: finlens-api
+provider:
+  name: aws
+  runtime: python3.11
+  region: ap-south-1   # Mumbai for India
+
+functions:
+  addExpense:
+    handler: handler.add_expense
+    events:
+      - http:
+          path: /expenses
+          method: post
+          cors: true
+          authorizer: aws_cognito_user_pools
+  getExpenses:
+    handler: handler.get_expenses
+    events:
+      - http:
+          path: /expenses
+          method: get
+          cors: true</div>
+      <div class="text-sm text-muted">Free Tier: 1M API calls/month free</div>`,
+          },
+          {
+            title: "Set Up AWS Cognito (Authentication)",
+            color: "#c06ff7",
+            content: `
+      <div class="code-block">
+// Frontend: Amplify Auth
+import { Amplify, Auth } from 'aws-amplify';
+Amplify.configure({
+  Auth: {
+    region: 'ap-south-1',
+    userPoolId: 'ap-south-1_XXXXXXXX',
+    userPoolWebClientId: 'YOUR_CLIENT_ID',
+  }
+});
+
+// Sign in
+const user = await Auth.signIn(email, password);
+// Get JWT token for API calls
+const token = user.signInUserSession.idToken.jwtToken;</div>
+      <div class="text-sm text-muted">Free Tier: 50,000 MAUs free forever</div>`,
+          },
+          {
+            title: "Connect SageMaker for ML (Optional)",
+            color: "#43d9ad",
+            content: `
+      <div class="code-block">
+# Train forecast model (runs on SageMaker Notebook)
+import boto3, pandas as pd
+from sklearn.linear_model import LinearRegression
+
+s3 = boto3.client('s3')
+# Load expense data
+df = pd.read_csv('s3://your-bucket/expenses.csv')
+df['month_num'] = pd.to_datetime(df['date']).dt.month
+
+# Train per-category models
+models = {}
+for cat in df['category'].unique():
+    X = df[df.category==cat][['month_num']]
+    y = df[df.category==cat]['amount']
+    models[cat] = LinearRegression().fit(X, y)
+
+# Deploy as endpoint
+# → call from Lambda for real-time predictions</div>
+      <div class="text-sm text-muted">Free Tier: 250 hrs/month SageMaker Studio Lab (free)</div>`,
+          },
+          {
+            title: "Deploy Frontend (S3 + CloudFront)",
+            color: "#6c63ff",
+            content: `
+      <div class="code-block">
+# Build and deploy React app
+npm run build
+aws s3 sync build/ s3://your-finlens-bucket --acl public-read
+
+# Create CloudFront distribution (HTTPS + CDN)
+aws cloudfront create-distribution \\
+  --origin-domain-name your-bucket.s3.amazonaws.com \\
+  --default-root-object index.html
+
+# Set environment variables
+REACT_APP_API_URL=https://abc123.execute-api.ap-south-1.amazonaws.com/prod
+REACT_APP_USER_POOL_ID=ap-south-1_XXXXXXXX</div>
+      <div class="text-sm text-muted">Free Tier: 5 GB S3 storage + 1 TB CloudFront transfer/month</div>`,
+          },
+        ];
+
+        const el = document.getElementById("aws-steps");
+        el.innerHTML = steps
+          .map(
+            (s, i) => `
+    <div class="step-card">
+      <div class="flex items-center gap-8 mb-12">
+        <div class="step-num">${i + 1}</div>
+        <strong style="color:${s.color}">${s.title}</strong>
+      </div>
+      ${s.content}
+    </div>`,
+          )
+          .join("");
+      }
+
+      // ==================== NAVIGATION ====================
+      function showPage(id) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-tab")
+          .forEach((t) => t.classList.remove("active"));
+        document.getElementById("page-" + id).classList.add("active");
+        document
+          .querySelector(`.nav-tab[data-page="${id}"]`)
+          .classList.add("active");
+        if (id === "analytics") renderAnalytics();
+        if (id === "forecast") renderForecast();
+        if (id === "budget") renderBudgetForm();
+      }
+
+      document.querySelectorAll(".nav-tab").forEach((t) => {
+        t.addEventListener("click", () => showPage(t.dataset.page));
+      });
+
+      // ==================== INIT ====================
+      document.getElementById("f-date").value = new Date()
+        .toISOString()
+        .split("T")[0];
+      renderBudgetForm();
+      // renderAWSSteps();
+      initChat();
+      addSample();
+    </script>
+
+    <script>
+      // ═══════════════════════════════════════════════════════════════
+      // STEP 1: AWS CONFIG — replace CLIENT_ID with yours from Cognito
+      // ═══════════════════════════════════════════════════════════════
+
+      const AWS_CONFIG = {
+        API_URL: "https://qs1ubycqtd.execute-api.ap-south-1.amazonaws.com/prod",
+        USER_POOL_ID: "ap-south-1_jELdSlilh",
+        CLIENT_ID: "4tdnmotae00n844o7d76phpd61",
+        REGION: "ap-south-1",
+      };
+
+      // ── Auth helper — keeps user logged in after page refresh ────
+      const Auth = {
+        token: localStorage.getItem("finlens_token"),
+        userId: localStorage.getItem("finlens_user"),
+
+        setSession(token, userId) {
+          this.token = token;
+          this.userId = userId;
+          localStorage.setItem("finlens_token", token);
+          localStorage.setItem("finlens_user", userId);
+        },
+        clearSession() {
+          this.token = null;
+          this.userId = null;
+          localStorage.removeItem("finlens_token");
+          localStorage.removeItem("finlens_user");
+        },
+
+        isLoggedIn() {
+          return !!this.token;
+        },
+      };
+    </script>
+
+    <script>
+      // ═══════════════════════════════════════════════════════════════
+      // STEP 2B: LOGIN FUNCTIONS — paste before </body>
+      // ═══════════════════════════════════════════════════════════════
+
+      // Base URL for Cognito REST API — no extra libraries needed
+      const COGNITO_URL =
+        "https://cognito-idp." + AWS_CONFIG.REGION + ".amazonaws.com/";
+
+      // ── Low-level helper: send a request to Cognito ──────────────
+      async function cognitoRequest(action, body) {
+        const res = await fetch(COGNITO_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-amz-json-1.1",
+            "X-Amz-Target": "AWSCognitoIdentityProviderService." + action,
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok)
+          throw new Error(data.message || data.__type || "Auth error");
+        return data;
+      }
+
+      // ── Sign In ──────────────────────────────────────────────────
+      async function doLogin() {
+        const email = document.getElementById("login-email").value.trim();
+        const pass = document.getElementById("login-pass").value;
+        const errEl = document.getElementById("login-error");
+
+        if (!email || !pass) {
+          errEl.textContent = "Please enter your email and password.";
+          return;
+        }
+        errEl.textContent = "Signing in...";
+
+        try {
+          const data = await cognitoRequest("InitiateAuth", {
+            AuthFlow: "USER_PASSWORD_AUTH",
+            ClientId: AWS_CONFIG.CLIENT_ID,
+            AuthParameters: {
+              USERNAME: email,
+              PASSWORD: pass,
+            },
+          });
+
+          // Extract token and user ID from the response
+          const token = data.AuthenticationResult.IdToken;
+          const userId = JSON.parse(atob(token.split(".")[1])).sub;
+
+          Auth.setSession(token, userId);
+          showApp();
+          loadExpensesFromCloud(); // load data after login
+        } catch (e) {
+          errEl.textContent = e.message;
+        }
+      }
+
+      // ── Create Account ───────────────────────────────────────────
+      async function doSignup() {
+        const email = document.getElementById("login-email").value.trim();
+        const pass = document.getElementById("login-pass").value;
+        const errEl = document.getElementById("login-error");
+
+        if (!email || !pass) {
+          errEl.textContent = "Please enter an email and password.";
+          return;
+        }
+        if (pass.length < 8) {
+          errEl.textContent = "Password must be at least 8 characters.";
+          return;
+        }
+        errEl.textContent = "Creating account...";
+
+        try {
+          await cognitoRequest("SignUp", {
+            ClientId: AWS_CONFIG.CLIENT_ID,
+            Username: email,
+            Password: pass,
+            UserAttributes: [{ Name: "email", Value: email }],
+          });
+
+          errEl.style.color = "#43d9ad";
+          errEl.textContent = "Account created! Check your email for a code.";
+          // Ask user for the verification code
+          const code = prompt(
+            "AWS sent a 6-digit code to " + email + "\nEnter it here:",
+          );
+
+          if (code) {
+            await cognitoRequest("ConfirmSignUp", {
+              ClientId: AWS_CONFIG.CLIENT_ID,
+              Username: email,
+              ConfirmationCode: code.trim(),
+            });
+            errEl.textContent = "Verified! Signing you in...";
+            doLogin(); // auto-login after signup
+          }
+        } catch (e) {
+          errEl.style.color = "#ff6584";
+          errEl.textContent = e.message;
+        }
+      }
+
+      // ── Show / hide screens ──────────────────────────────────────
+      function showApp() {
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+      }
+
+      function showLogin() {
+        document.getElementById("login-screen").style.display = "flex";
+        document.getElementById("app").style.display = "none";
+      }
+
+      function doLogout() {
+        Auth.clearSession();
+        expenses = [];
+        showLogin();
+      }
+
+      // ── On page load: check if already logged in ─────────────────
+      window.addEventListener("load", () => {
+        if (Auth.isLoggedIn()) {
+          showApp();
+          loadExpensesFromCloud();
+        } else {
+          showLogin();
+        }
+      });
+    </script>
+  </body>
+</html>
