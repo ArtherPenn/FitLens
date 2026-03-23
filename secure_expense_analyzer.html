@@ -813,7 +813,7 @@
           font-size: 14px;
           outline: none;
         "
-        onkeydown="if (event.key == Enter) doLogin();"
+        onkeydown="if (event.key === 'Enter') doLogin();"
       />
 
       <!-- Password input -->
@@ -831,7 +831,7 @@
           font-size: 14px;
           outline: none;
         "
-        onkeydown="if (event.key == Enter) doLogin();"
+        onkeydown="if (event.key === 'Enter') doLogin();"
       />
 
       <!-- Sign In button -->
@@ -1522,7 +1522,7 @@
 
       // ==================== ADD EXPENSE ====================
       // ═══════════════════════════════════════════════════════════════
-      // STEP 3A: REPLACE addExpense() — saves to DynamoDB
+      // SUPABASE: Save expense to secure database
       // ═══════════════════════════════════════════════════════════════
       async function addExpense() {
         const date = document.getElementById("f-date").value;
@@ -1540,32 +1540,29 @@
         }
 
         alertEl.innerHTML =
-          '<div class="alert alert-info">Saving to cloud...</div>';
+          '<div class="alert alert-info">Saving to database...</div>';
 
         try {
-          // POST to API Gateway → Lambda → DynamoDB
-          const res = await fetch(AWS_CONFIG.API_URL + "/expenses", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: Auth.token,
-            },
-            body: JSON.stringify({
-              date,
-              amount,
-              category,
-              source,
-              description: desc,
-            }),
-          });
+          // Insert into Supabase with RLS protection
+          const { data, error } = await supabase
+            .from("expenses")
+            .insert([
+              {
+                user_id: Auth.userId,
+                date,
+                amount,
+                category,
+                source,
+                description: desc,
+              },
+            ])
+            .select();
 
-          const data = await res.json();
-
-          if (!res.ok) throw new Error(data.error || "Save failed");
+          if (error) throw error;
 
           // Add to local array so UI updates instantly
           expenses.push({
-            id: data.expenseId,
+            id: data[0].id,
             date,
             amount,
             category,
@@ -1578,7 +1575,7 @@
           document.getElementById("f-desc").value = "";
 
           alertEl.innerHTML =
-            '<div class="alert alert-success">Saved to cloud!</div>';
+            '<div class="alert alert-success">Saved to database!</div>';
           setTimeout(() => (alertEl.innerHTML = ""), 2500);
 
           updateAll();
@@ -1589,20 +1586,17 @@
       }
 
       // ═══════════════════════════════════════════════════════════════
-      // STEP 3B: REPLACE deleteExpense() — deletes from DynamoDB
+      // SUPABASE: Delete expense from database
       // ═══════════════════════════════════════════════════════════════
       async function deleteExpense(id) {
         try {
-          // DELETE to API Gateway → Lambda → DynamoDB
-          const res = await fetch(AWS_CONFIG.API_URL + "/expenses/" + id, {
-            method: "DELETE",
-            headers: { Authorization: Auth.token },
-          });
+          const { error } = await supabase
+            .from("expenses")
+            .delete()
+            .eq("id", id)
+            .eq("user_id", Auth.userId);
 
-          if (!res.ok) {
-            const data = await res.json();
-            throw new Error(data.error || "Delete failed");
-          }
+          if (error) throw error;
 
           // Remove from local array
           expenses = expenses.filter((e) => e.id !== id);
@@ -1613,32 +1607,38 @@
       }
 
       // ═══════════════════════════════════════════════════════════════
-      // STEP 3C: NEW FUNCTION — loads all expenses from DynamoDB
-      // Paste this anywhere in your <script> block
+      // SUPABASE: Load all expenses from database
       // ═══════════════════════════════════════════════════════════════
       async function loadExpensesFromCloud(month = null) {
         try {
-          // Build URL — optionally filter by month e.g. '2025-03'
-          const url = month
-            ? AWS_CONFIG.API_URL + "/expenses?month=" + month
-            : AWS_CONFIG.API_URL + "/expenses";
+          let query = supabase
+            .from("expenses")
+            .select("*")
+            .eq("user_id", Auth.userId)
+            .order("date", { ascending: false });
 
-          const res = await fetch(url, {
-            method: "GET",
-            headers: { Authorization: Auth.token },
-          });
+          // Optional: filter by month
+          if (month) {
+            const startDate = month + "-01";
+            const endDate = new Date(month + "-01");
+            endDate.setMonth(endDate.getMonth() + 1);
+            endDate.setDate(0);
+            const endDateStr = endDate.toISOString().split("T")[0];
 
-          const data = await res.json();
+            query = query.gte("date", startDate).lte("date", endDateStr);
+          }
 
-          if (!res.ok) throw new Error(data.error || "Load failed");
+          const { data, error } = await query;
 
-          // Map DynamoDB field names to the format the app expects
-          expenses = (data.expenses || []).map((e) => ({
-            id: e.expenseId,
+          if (error) throw error;
+
+          // Map Supabase data to app format
+          expenses = (data || []).map((e) => ({
+            id: e.id,
             date: e.date,
             amount: Number(e.amount),
             category: e.category,
-            source: e.source,
+            source: e.source || "",
             desc: e.description || e.category,
           }));
 
@@ -2441,7 +2441,7 @@
         sendChat();
       }
 
-      function sendChat() {
+      async function sendChat() {
         const input = document.getElementById("chat-input");
         const q = input.value.trim();
         if (!q) return;
@@ -2456,19 +2456,30 @@
         msgs.appendChild(typing);
         msgs.scrollTop = msgs.scrollHeight;
 
-        setTimeout(() => {
-          typing.remove();
+        try {
           const ctx = getChatContext();
-          const qLower = q.toLowerCase();
-          let response = `I don't have specific data about "${q}" yet. Try asking about your top categories, budget status, or spending forecast. Load some sample data first for richer insights!`;
-          for (const [pattern, fn] of Object.entries(BOT_RESPONSES)) {
-            if (new RegExp(pattern).test(qLower)) {
-              response = fn(ctx);
-              break;
-            }
-          }
-          addBotMsg(response);
-        }, 800);
+          const contextStr = JSON.stringify(ctx);
+
+          // Call Supabase Edge Function for AI insights
+          const { data, error } = await supabase.functions.invoke("ai-assistant", {
+            body: {
+              question: q,
+              context: contextStr,
+            },
+          });
+
+          typing.remove();
+
+          if (error) throw error;
+
+          addBotMsg(data.response);
+        } catch (e) {
+          typing.remove();
+          addBotMsg(
+            "I apologize, but I encountered an error processing your question. Please try again."
+          );
+          console.error("Chat error:", e);
+        }
       }
 
       // ==================== AWS STEPS ====================
@@ -2672,66 +2683,63 @@ REACT_APP_USER_POOL_ID=ap-south-1_XXXXXXXX</div>
       addSample();
     </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       // ═══════════════════════════════════════════════════════════════
-      // STEP 1: AWS CONFIG — replace CLIENT_ID with yours from Cognito
+      // SUPABASE CONFIG — Secure Cloud Database Integration
       // ═══════════════════════════════════════════════════════════════
 
-      const AWS_CONFIG = {
-        API_URL: "https://qs1ubycqtd.execute-api.ap-south-1.amazonaws.com/prod",
-        USER_POOL_ID: "ap-south-1_jELdSlilh",
-        CLIENT_ID: "4tdnmotae00n844o7d76phpd61",
-        REGION: "ap-south-1",
+      const SUPABASE_CONFIG = {
+        URL: "https://zvlywemxihmllyklxcqc.supabase.co",
+        ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bHl3ZW14aWhtbGx5a2x4Y3FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTc0NjUsImV4cCI6MjA4OTgzMzQ2NX0.wZDxFrDFCbAdKXr-ogbKXI7S3hCmctoAbi7OHPCZg_w",
       };
+
+      // Initialize Supabase client
+      const supabase = window.supabase.createClient(
+        SUPABASE_CONFIG.URL,
+        SUPABASE_CONFIG.ANON_KEY
+      );
 
       // ── Auth helper — keeps user logged in after page refresh ────
       const Auth = {
-        token: localStorage.getItem("finlens_token"),
-        userId: localStorage.getItem("finlens_user"),
+        token: null,
+        userId: null,
+        session: null,
 
-        setSession(token, userId) {
-          this.token = token;
-          this.userId = userId;
-          localStorage.setItem("finlens_token", token);
-          localStorage.setItem("finlens_user", userId);
+        async init() {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            this.session = session;
+            this.token = session.access_token;
+            this.userId = session.user.id;
+            return true;
+          }
+          return false;
         },
-        clearSession() {
+
+        setSession(session) {
+          this.session = session;
+          this.token = session.access_token;
+          this.userId = session.user.id;
+        },
+
+        async clearSession() {
+          await supabase.auth.signOut();
+          this.session = null;
           this.token = null;
           this.userId = null;
-          localStorage.removeItem("finlens_token");
-          localStorage.removeItem("finlens_user");
         },
 
         isLoggedIn() {
-          return !!this.token;
+          return !!this.session;
         },
       };
     </script>
 
     <script>
       // ═══════════════════════════════════════════════════════════════
-      // STEP 2B: LOGIN FUNCTIONS — paste before </body>
+      // SUPABASE AUTHENTICATION FUNCTIONS
       // ═══════════════════════════════════════════════════════════════
-
-      // Base URL for Cognito REST API — no extra libraries needed
-      const COGNITO_URL =
-        "https://cognito-idp." + AWS_CONFIG.REGION + ".amazonaws.com/";
-
-      // ── Low-level helper: send a request to Cognito ──────────────
-      async function cognitoRequest(action, body) {
-        const res = await fetch(COGNITO_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-amz-json-1.1",
-            "X-Amz-Target": "AWSCognitoIdentityProviderService." + action,
-          },
-          body: JSON.stringify(body),
-        });
-        const data = await res.json();
-        if (!res.ok)
-          throw new Error(data.message || data.__type || "Auth error");
-        return data;
-      }
 
       // ── Sign In ──────────────────────────────────────────────────
       async function doLogin() {
@@ -2746,22 +2754,16 @@ REACT_APP_USER_POOL_ID=ap-south-1_XXXXXXXX</div>
         errEl.textContent = "Signing in...";
 
         try {
-          const data = await cognitoRequest("InitiateAuth", {
-            AuthFlow: "USER_PASSWORD_AUTH",
-            ClientId: AWS_CONFIG.CLIENT_ID,
-            AuthParameters: {
-              USERNAME: email,
-              PASSWORD: pass,
-            },
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: pass,
           });
 
-          // Extract token and user ID from the response
-          const token = data.AuthenticationResult.IdToken;
-          const userId = JSON.parse(atob(token.split(".")[1])).sub;
+          if (error) throw error;
 
-          Auth.setSession(token, userId);
+          Auth.setSession(data.session);
           showApp();
-          loadExpensesFromCloud(); // load data after login
+          await loadExpensesFromCloud();
         } catch (e) {
           errEl.textContent = e.message;
         }
@@ -2784,29 +2786,18 @@ REACT_APP_USER_POOL_ID=ap-south-1_XXXXXXXX</div>
         errEl.textContent = "Creating account...";
 
         try {
-          await cognitoRequest("SignUp", {
-            ClientId: AWS_CONFIG.CLIENT_ID,
-            Username: email,
-            Password: pass,
-            UserAttributes: [{ Name: "email", Value: email }],
+          const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: pass,
           });
 
-          errEl.style.color = "#43d9ad";
-          errEl.textContent = "Account created! Check your email for a code.";
-          // Ask user for the verification code
-          const code = prompt(
-            "AWS sent a 6-digit code to " + email + "\nEnter it here:",
-          );
+          if (error) throw error;
 
-          if (code) {
-            await cognitoRequest("ConfirmSignUp", {
-              ClientId: AWS_CONFIG.CLIENT_ID,
-              Username: email,
-              ConfirmationCode: code.trim(),
-            });
-            errEl.textContent = "Verified! Signing you in...";
-            doLogin(); // auto-login after signup
-          }
+          errEl.style.color = "#43d9ad";
+          errEl.textContent = "Account created successfully! Signing you in...";
+
+          // Auto-login after signup
+          setTimeout(() => doLogin(), 1000);
         } catch (e) {
           errEl.style.color = "#ff6584";
           errEl.textContent = e.message;
@@ -2824,17 +2815,18 @@ REACT_APP_USER_POOL_ID=ap-south-1_XXXXXXXX</div>
         document.getElementById("app").style.display = "none";
       }
 
-      function doLogout() {
-        Auth.clearSession();
+      async function doLogout() {
+        await Auth.clearSession();
         expenses = [];
         showLogin();
       }
 
       // ── On page load: check if already logged in ─────────────────
-      window.addEventListener("load", () => {
-        if (Auth.isLoggedIn()) {
+      window.addEventListener("load", async () => {
+        const isLoggedIn = await Auth.init();
+        if (isLoggedIn) {
           showApp();
-          loadExpensesFromCloud();
+          await loadExpensesFromCloud();
         } else {
           showLogin();
         }
